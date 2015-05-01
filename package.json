@@ -1,0 +1,25 @@
+{
+  "name": "a-http-server-plugin-shutdown",
+  "version": "0.0.0",
+  "main": "lib",
+  "description": "A Http Server Plugin Shutdown",
+  "keywords": [
+    "a",
+    "http",
+    "server",
+    "plugin",
+    "shutdown"
+  ],
+  "dependencies": {
+    "lodash.merge": ""
+  },
+  "devDependencies": {},
+  "homepage": "https://github.com/joaoafrmartins/a-http-server-plugin-shutdown",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/joaoafrmartins/a-http-server-plugin-shutdown.git"
+  },
+  "bugs": {
+    "url": "https://github.com/joaoafrmartins/a-http-server-plugin-shutdown/issues"
+  }
+}
