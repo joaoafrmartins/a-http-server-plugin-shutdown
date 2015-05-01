@@ -2,6 +2,8 @@ merge = require 'lodash.merge'
 
 module.exports = (next) ->
 
+  shutdown = {}
+
   @config.shutdown = merge require('./config'), @config?.shutdown or {}
 
   @app.set 'shutdown', false
@@ -14,34 +16,48 @@ module.exports = (next) ->
 
     done()
 
-  Object.defineProperty @, "shutdown", value: () =>
+  shutdown = {}
 
-    @app.set "shutdown", true
+  process.on "a-http-server:shutdown:attach", (plugin) ->
 
-    ###
+    shutdown[plugin] = 1
 
-    send events on process shutdown-pre-up, shutdown-pre-down and shutdown-completed
+  process.on "a-http-server:shutdown:dettached", (plugin) ->
 
-    if @sockets then @sockets?.clients()?.map (socket) =>
+    shutdown[plugin] = 0
 
-      @console.info "closing", "socket", socket?.id or ''
+    done = !!!Object.keys(shutdown).reduce (sum, plugin) ->
 
-      socket.disconnect()
+      sum += shutdown[plugin]
 
-    ###
+    , 0
 
-    @http.close () =>
+    if done then process.emit "a-http-server:shutdown"
+
+  process.on "a-http-server:shutdown:dettach", () ->
+
+    process.emit "a-http-server:shutdown:dettached", "shutdown"
+
+  process.on "a-http-server:shutdown", =>
+
+    @http.close =>
 
       @console.info "shutdown"
 
+      setTimeout () =>
+
+        @console.error "forcefull shutdown"
+
+        process.exit 1
+
+      , @config?.shutdown?.timeout or 120000
+
       process.exit 0
 
-    setTimeout () =>
+  Object.defineProperty @, "shutdown", value: =>
 
-      @console.error "forcefull shutdown"
+    process.emit "a-http-server:shutdown:dettach"
 
-      process.exit 1
-
-    , @config.shutdown.timeout
+  process.emit "a-http-server:shutdown:attach", "shutdown"
 
   next null
