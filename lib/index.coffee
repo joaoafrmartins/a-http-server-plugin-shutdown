@@ -8,8 +8,6 @@ module.exports = (next) ->
 
     file: "#{__dirname}/config"
 
-  shutdown = {}
-
   @app.set 'shutdown', false
 
   @app.use (req, res, done) =>
@@ -20,19 +18,17 @@ module.exports = (next) ->
 
     done()
 
-  shutdown = {}
+  process.on "a-http-server:shutdown:attach", (plugin) =>
 
-  process.on "a-http-server:shutdown:attach", (plugin) ->
+    @config.plugins[plugin].status = 1
 
-    shutdown[plugin] = 1
+  process.on "a-http-server:shutdown:dettached", (plugin) =>
 
-  process.on "a-http-server:shutdown:dettached", (plugin) ->
+    @config.plugins[plugin].status = 0
 
-    shutdown[plugin] = 0
+    done = !!!Object.keys(@config.plugins).reduce (sum, plugin) =>
 
-    done = !!!Object.keys(shutdown).reduce (sum, plugin) ->
-
-      sum += shutdown[plugin]
+      sum += @config.plugins[plugin].status
 
     , 0
 
@@ -54,7 +50,7 @@ module.exports = (next) ->
 
         process.exit 1
 
-      , @config?.shutdown?.timeout or 120000
+      , @config?.plugins?.shutdown?.timeout or 120000
 
       process.exit 0
 
