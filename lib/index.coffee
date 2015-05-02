@@ -14,6 +14,18 @@ module.exports = (next) ->
 
     done()
 
+  sockets = []
+
+  @http.on "connection", (socket) =>
+
+    sockets.push socket
+
+    socket.on "close", () =>
+
+      index = sockets.indexOf socket
+
+      if index isnt -1 then sockets.splice index, 1
+
   process.on "a-http-server:shutdown:attach", (plugin) =>
 
     @config.plugins[plugin].status = 1
@@ -36,7 +48,7 @@ module.exports = (next) ->
 
   process.on "a-http-server:shutdown", =>
 
-    @http.close =>
+    @http.close () =>
 
       @console.info "shutdown"
 
@@ -51,6 +63,8 @@ module.exports = (next) ->
       process.exit 0
 
   Object.defineProperty @, "shutdown", value: =>
+
+    sockets.map (socket) -> socket.destroy()
 
     process.emit "a-http-server:shutdown:dettach"
 
