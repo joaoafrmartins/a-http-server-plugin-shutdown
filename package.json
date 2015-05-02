@@ -11,7 +11,7 @@
     "shutdown"
   ],
   "dependencies": {
-    "lodash.merge": ""
+    "a-http-server-config-fn": ""
   },
   "devDependencies": {},
   "homepage": "https://github.com/joaoafrmartins/a-http-server-plugin-shutdown",

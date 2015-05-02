@@ -1,10 +1,14 @@
-merge = require 'lodash.merge'
+configFn = require 'a-http-server-config-fn'
 
 module.exports = (next) ->
 
-  shutdown = {}
+  configFn @config,
 
-  @config.shutdown = merge require('./config'), @config?.shutdown or {}
+    alias: "shutdown"
+
+    file: "#{__dirname}/config"
+
+  shutdown = {}
 
   @app.set 'shutdown', false
 
