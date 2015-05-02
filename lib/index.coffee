@@ -2,11 +2,7 @@ configFn = require 'a-http-server-config-fn'
 
 module.exports = (next) ->
 
-  configFn @config,
-
-    alias: "shutdown"
-
-    file: "#{__dirname}/config"
+  configFn @config, "#{__dirname}/config"
 
   @app.set 'shutdown', false
 
